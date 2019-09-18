@@ -144,7 +144,7 @@ abstract class CliApp
      * @since  v1.0
      * @return void
      */
-    protected function logCounter(string $level, integer $current, integer $target, string $word = 'served') : void
+    protected function logCounter(string $level, int $current, int $target, string $word = 'served') : void
     {
 
         // Get log if not exists.
