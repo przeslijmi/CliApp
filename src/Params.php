@@ -57,10 +57,11 @@ class Params
     /**
      * Getter for one param.
      *
-     * @param string $name Name of the param to give value.
+     * @param string  $name  Name of the param to give value.
+     * @param boolean $throw Optional, true. Throw if param does not exists.
      *
      * @since  v1.0
-     * @throws ParamOtosetException When no param with given name has been found.
+     * @throws ParamDonoexException When no param with given name has been found.
      * @return mixed
      */
     public function getParam(string $name, bool $throw = true)
@@ -158,6 +159,30 @@ class Params
     }
 
     /**
+     * Setter for one param.
+     *
+     * @param string                       $name  Name of param.
+     * @param string|integer|float|boolean $value Value of param.
+     *
+     * @since  v1.0
+     * @return self
+     */
+    public function setParam(string $name, $value) : self
+    {
+
+        // Set this param.
+        $this->params[$name] = $value;
+
+        // If this was an alias - change original name also.
+        if (isset($this->aliases[$name]) === true) {
+            $originalName                = $this->aliases[$name];
+            $this->params[$originalName] = $this->params[$name];
+        }
+
+        return $this;
+    }
+
+    /**
      * Setter for operation.
      *
      * @param string $operation Name of operation.
@@ -176,11 +201,14 @@ class Params
     /**
      * Sets aliases to include on setting values. Has to be called before `->set()`.
      *
-     * @param string   $param   Param in long version.
-     * @param string[] $aliases Aliases of the long version name.
+     * @param string   $param      Param in long version.
+     * @param string[] ...$aliases Aliases of the long version name.
      *
      * @since  v1.0
      * @return self
+     *
+     * phpcs:disable Squiz.Commenting.FunctionComment.IncorrectTypeHint
+     * phpcs:disable MySource.Commenting.FunctionComment.IncorrectTypeHint
      */
     public function setAliases(string $param, string ...$aliases) : self
     {
@@ -188,21 +216,6 @@ class Params
         // Remember.
         foreach ($aliases as $alias) {
             $this->aliases[$alias] = $param;
-        }
-
-        return $this;
-    }
-
-    public function setParam(string $name, $value) : self
-    {
-
-        // Set this param.
-        $this->params[$name] = $value;
-
-        // If this was an alias - change original name also.
-        if (isset($this->aliases[$name]) === true) {
-            $originalName                = $this->aliases[$name];
-            $this->params[$originalName] = $this->params[$name];
         }
 
         return $this;

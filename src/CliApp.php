@@ -2,13 +2,12 @@
 
 namespace Przeslijmi\CliApp;
 
-use Exception;
+use Throwable;
 use Przeslijmi\CliApp\Exceptions\OperationDonoexException;
 use Przeslijmi\CliApp\Params;
 use Przeslijmi\Sexceptions\Exceptions\ClassFopException;
 use Przeslijmi\Sexceptions\Exceptions\FileDonoexException;
 use Przeslijmi\Sexceptions\Exceptions\MethodFopException;
-use Przeslijmi\Sexceptions\Sexception;
 use Przeslijmi\Silogger\Log;
 
 /**
@@ -60,6 +59,9 @@ abstract class CliApp
      * Start doing job. Runnes method of name equal to operation name.
      *
      * @since  v1.0
+     * @throws MethodFopException       When including configs failed or calling method failed.
+     * @throws OperationDonoexException When called method does not exists.
+     * @throws ClassFopException        When whole process failed.
      * @return void
      */
     public function start() : void
@@ -71,12 +73,12 @@ abstract class CliApp
             // Include config if config (c) param was given.
             try {
                 $this->includeConfig();
-            } catch (Exception $exc) {
-                throw new MethodFopException('cliAppIncludingConfigs', $exc);
+            } catch (Throwable $thr) {
+                throw new MethodFopException('cliAppIncludingConfigs', $thr);
             }
 
             // Call before operation handler (if exists).
-            if (method_exists($this, 'handleBeforeOperation')) {
+            if (method_exists($this, 'handleBeforeOperation') === true) {
                 $this->handleBeforeOperation();
             }
 
@@ -101,18 +103,18 @@ abstract class CliApp
             // Call.
             try {
                 $this->$methodToCall();
-            } catch (Sexception $exc) {
-                throw new MethodFopException('callingCliAppOperation', $exc);
+            } catch (Throwable $thr) {
+                throw new MethodFopException('callingCliAppOperation', $thr);
             }
 
             // Call after operation handler (if exists).
-            if (method_exists($this, 'handleAfterOperation')) {
+            if (method_exists($this, 'handleAfterOperation') === true) {
                 $this->handleAfterOperation();
             }
-        } catch (Exception $exc) {
-            throw ( new ClassFopException('cliAppStopped', $exc) )
+        } catch (Throwable $thr) {
+            throw ( new ClassFopException('cliAppStopped', $thr) )
                 ->addInfo('realClass', get_class($this));
-        }
+        }//end try
     }
 
     /**
@@ -120,6 +122,7 @@ abstract class CliApp
      *
      * @param string $level   Name of level (see Silogger doc).
      * @param mixed  $message Message contents.
+     * @param array  $context Extra information to save to log.
      *
      * @since  v1.0
      * @return void
@@ -138,8 +141,10 @@ abstract class CliApp
     /**
      * Logs counter.
      *
-     * @param string $level   Name of level (see Silogger doc).
-     * @param mixed  $message Message contents.
+     * @param string  $level   Name of level (see Silogger doc).
+     * @param integer $current Current value of counter.
+     * @param integer $target  Final value of counter.
+     * @param string  $word    Optional, 'served'. What prefix use before counter.
      *
      * @since  v1.0
      * @return void
@@ -188,8 +193,8 @@ abstract class CliApp
         // Try to include config file - throw otherwise.
         try {
             include $configUri;
-        } catch (Exception $exc) {
-            throw new MethodFopException('includingConfigFile', $exc);
+        } catch (Throwable $thr) {
+            throw new MethodFopException('includingConfigFile', $thr);
         }
 
         // Log.

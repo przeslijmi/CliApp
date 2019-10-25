@@ -2,7 +2,6 @@
 
 namespace Przeslijmi\CliApp\Exceptions;
 
-use Exception;
 use Przeslijmi\Sexceptions\Exceptions\ClassFopException;
 
 /**
@@ -14,20 +13,21 @@ class ParamDonoexException extends ClassFopException
     /**
      * Constructor.
      *
-     * @param Exception|null $cause Exception that caused the problem.
+     * @param string $paramName Name of missing param.
      *
      * @since v1.0
      */
-    public function __construct(string $paramName, ?Exception $cause = null)
+    public function __construct(string $paramName)
     {
 
-        $this->setCodeName('ParamDonoex');
+        // Lvd.
+        $hint  = 'Param `' . $paramName . '` is missing. When using this operation ';
+        $hint .= 'you have to define parameter `' . $paramName . '`. Try to call ';
+        $hint .= 'app with `help` operation for more info.';
+
+        // Define.
         $this->addInfo('context', 'CliAppParamDonoex');
         $this->addInfo('paramName', $paramName);
-        $this->addInfo('hint', 'Param `' . $paramName . '` is missing. When using this operation you have to define parameter `' . $paramName . '`. Try to call app with `help` operation for more info.');
-
-        if (is_null($cause) === false) {
-            $this->setCause($cause);
-        }
+        $this->addInfo('hint', $hint);
     }
 }

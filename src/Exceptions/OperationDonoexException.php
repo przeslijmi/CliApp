@@ -2,7 +2,6 @@
 
 namespace Przeslijmi\CliApp\Exceptions;
 
-use Exception;
 use Przeslijmi\Sexceptions\Exceptions\ClassFopException;
 
 /**
@@ -14,20 +13,19 @@ class OperationDonoexException extends ClassFopException
     /**
      * Constructor.
      *
-     * @param Exception|null $cause Exception that caused the problem.
+     * @param string $operationName Name of missing operation.
      *
      * @since v1.0
      */
-    public function __construct(string $operationName, ?Exception $cause = null)
+    public function __construct(string $operationName)
     {
 
-        $this->setCodeName('OperationDonoex');
+        // Lvd.
+        $hint = 'Check CLI command. Isn\'t there any mismatch? Try to call app with `help` operation.';
+
+        // Define.
         $this->addInfo('context', 'CliAppOperationDonoex');
         $this->addInfo('operationName', $operationName);
-        $this->addInfo('hint', 'Check CLI command. Isn\'t there any mismatch? Try to call app with `help` operation.');
-
-        if (is_null($cause) === false) {
-            $this->setCause($cause);
-        }
+        $this->addInfo('hint', $hint);
     }
 }
