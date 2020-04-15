@@ -14,8 +14,6 @@ class ParamDonoexException extends ClassFopException
      * Constructor.
      *
      * @param string $paramName Name of missing param.
-     *
-     * @since v1.0
      */
     public function __construct(string $paramName)
     {
@@ -28,6 +26,6 @@ class ParamDonoexException extends ClassFopException
         // Define.
         $this->addInfo('context', 'CliAppParamDonoex');
         $this->addInfo('paramName', $paramName);
-        $this->addInfo('hint', $hint);
+        $this->addHint($hint);
     }
 }

@@ -33,8 +33,6 @@ class Params
 
     /**
      * Constructor - defines default param 'config' and alias 'c'.
-     *
-     * @since v1.0
      */
     public function __construct()
     {
@@ -60,7 +58,6 @@ class Params
      * @param string  $name  Name of the param to give value.
      * @param boolean $throw Optional, true. Throw if param does not exists.
      *
-     * @since  v1.0
      * @throws ParamDonoexException When no param with given name has been found.
      * @return mixed
      */
@@ -79,14 +76,16 @@ class Params
     /**
      * Returns name of operation to perform by CliApp.
      *
-     * @since  v1.0
      * @return string
      */
     public function getOperation() : string
     {
 
         // Conclude.
-        if ($this->operation === '?' || $this->operation === 'h') {
+        if ($this->operation === '?'
+            || $this->operation === 'h'
+            || empty($this->operation) === true
+        ) {
             $this->operation = 'help';
         }
 
@@ -98,7 +97,6 @@ class Params
      *
      * @param string $name Name of the param to check.
      *
-     * @since  v1.0
      * @return boolean
      */
     public function isParamSet(string $name) : bool
@@ -112,7 +110,6 @@ class Params
      *
      * @param array $params Contents of `argv` array.
      *
-     * @since  v1.0
      * @return self
      */
     public function set(array $params) : self
@@ -164,7 +161,6 @@ class Params
      * @param string                       $name  Name of param.
      * @param string|integer|float|boolean $value Value of param.
      *
-     * @since  v1.0
      * @return self
      */
     public function setParam(string $name, $value) : self
@@ -187,7 +183,6 @@ class Params
      *
      * @param string $operation Name of operation.
      *
-     * @since  v1.0
      * @return self
      */
     public function setOperation(string $operation) : self
@@ -204,7 +199,6 @@ class Params
      * @param string   $param      Param in long version.
      * @param string[] ...$aliases Aliases of the long version name.
      *
-     * @since  v1.0
      * @return self
      *
      * phpcs:disable Squiz.Commenting.FunctionComment.IncorrectTypeHint

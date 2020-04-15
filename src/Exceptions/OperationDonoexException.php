@@ -14,8 +14,6 @@ class OperationDonoexException extends ClassFopException
      * Constructor.
      *
      * @param string $operationName Name of missing operation.
-     *
-     * @since v1.0
      */
     public function __construct(string $operationName)
     {
@@ -26,6 +24,6 @@ class OperationDonoexException extends ClassFopException
         // Define.
         $this->addInfo('context', 'CliAppOperationDonoex');
         $this->addInfo('operationName', $operationName);
-        $this->addInfo('hint', $hint);
+        $this->addHint($hint);
     }
 }

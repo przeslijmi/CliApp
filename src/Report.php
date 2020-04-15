@@ -22,7 +22,6 @@ class Report
      *
      * @param string $text Text to be shown.
      *
-     * @since  v1.0
      * @return void
      */
     public static function info(string $text) : void
@@ -36,7 +35,6 @@ class Report
      *
      * @param string $text Text to be shown.
      *
-     * @since  v1.0
      * @return void
      */
     public static function update(string $text) : void
@@ -52,7 +50,6 @@ class Report
      * @param integer $final Final (last) number that means end of calculation.
      * @param string  $word  Optional, 'served'. Subject of counting.
      *
-     * @since  v1.0
      * @return void
      */
     public static function count(int $count, int $final, string $word = 'served') : void
@@ -71,7 +68,6 @@ class Report
      *
      * @param integer $newLines Optional, 1. How many new lines to add.
      *
-     * @since  v1.0
      * @return void
      */
     public static function updateEnd(int $newLines = 1) : void

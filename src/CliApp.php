@@ -26,15 +26,19 @@ abstract class CliApp
     /**
      * Log element.
      *
-     * @var   Log
-     * @since v1.0
+     * @var Log
      */
     private $log;
 
     /**
-     * Constructor.
+     * Log name to use.
      *
-     * @since v1.0
+     * @var string
+     */
+    private $logName = 'default';
+
+    /**
+     * Constructor.
      */
     public function __construct()
     {
@@ -46,7 +50,6 @@ abstract class CliApp
     /**
      * Getter for params object.
      *
-     * @since  v1.0
      * @return Params
      */
     public function getParams() : Params
@@ -58,7 +61,6 @@ abstract class CliApp
     /**
      * Start doing job. Runnes method of name equal to operation name.
      *
-     * @since  v1.0
      * @throws MethodFopException       When including configs failed or calling method failed.
      * @throws OperationDonoexException When called method does not exists.
      * @throws ClassFopException        When whole process failed.
@@ -85,24 +87,17 @@ abstract class CliApp
             // Lvd.
             $operation = $this->getParams()->getOperation();
 
-            // Find operation to call.
-            if (get_parent_class($this) === 'Przeslijmi\CliApp\CliApp') {
-                $methodToCall = $operation;
-            } else {
-                $methodToCall = 'work';
-            }
-
             // Log.
-            $this->log('info', 'start to work on >>' . $methodToCall . '<<');
+            $this->log('info', 'start to work on >>' . $operation . '<<');
 
             // Check.
-            if (method_exists($this, $methodToCall) === false) {
-                throw new OperationDonoexException($methodToCall);
+            if (method_exists($this, $operation) === false) {
+                throw new OperationDonoexException($operation);
             }
 
             // Call.
             try {
-                $this->$methodToCall();
+                $this->$operation();
             } catch (Throwable $thr) {
                 throw new MethodFopException('callingCliAppOperation', $thr);
             }
@@ -118,16 +113,45 @@ abstract class CliApp
     }
 
     /**
+     * Setter for log name.
+     *
+     * @param string $logName Log name.
+     *
+     * @return self
+     */
+    public function setLogName(string $logName) : self
+    {
+
+        // Save.
+        $this->logName = $logName;
+
+        return $this;
+    }
+
+    /**
+     * Deletes log.
+     *
+     * @return self
+     */
+    public function deleteLog() : self
+    {
+
+        // Delete log.
+        $this->log = null;
+
+        return $this;
+    }
+
+    /**
      * Logs message.
      *
      * @param string $level   Name of level (see Silogger doc).
      * @param mixed  $message Message contents.
      * @param array  $context Extra information to save to log.
      *
-     * @since  v1.0
      * @return void
      */
-    protected function log(string $level, $message, array $context = []) : void
+    public function log(string $level, $message, array $context = []) : void
     {
 
         // Get log if not exists.
@@ -146,10 +170,9 @@ abstract class CliApp
      * @param integer $target  Final value of counter.
      * @param string  $word    Optional, 'served'. What prefix use before counter.
      *
-     * @since  v1.0
      * @return void
      */
-    protected function logCounter(string $level, int $current, int $target, string $word = 'served') : void
+    public function logCounter(string $level, int $current, int $target, string $word = 'served') : void
     {
 
         // Get log if not exists.
@@ -163,7 +186,6 @@ abstract class CliApp
     /**
      * Includes configuration file if param `config` or `c` were given.
      *
-     * @since  v1.0
      * @throws FileDonoexException If file does not exists.
      * @throws MethodFopException  If inclusion went wrong.
      * @return void
