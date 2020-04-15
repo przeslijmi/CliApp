@@ -14,16 +14,22 @@
     {
       "type": "vcs",
       "url": "https://github.com/przeslijmi/sexceptions"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/przeslijmi/silogger"
     }
   ],
   "require": {
     "php" : "^7.3",
-    "przeslijmi/sexceptions": "~1.0"
+    "przeslijmi/sexceptions": "~1.0",
+    "przeslijmi/silogger": "~1.0"
   },
   "autoload": {
     "psr-4": {
       "Przeslijmi\\CliApp\\": "src/",
-      "Przeslijmi\\Sexceptions\\": "vendor/przeslijmi/sexceptions/src/"
+      "Przeslijmi\\Sexceptions\\": "vendor/przeslijmi/sexceptions/src/",
+      "Przeslijmi\\Silogger\\": "vendor/przeslijmi/silogger/src/"
     }
   }
 }
