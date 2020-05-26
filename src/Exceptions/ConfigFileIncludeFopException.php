@@ -5,9 +5,9 @@ namespace Przeslijmi\CliApp\Exceptions;
 use Przeslijmi\Sexceptions\Sexception;
 
 /**
- * Neccessary param is missing.
+ * File with configurations failed on include.
  */
-class ParamDonoexException extends Sexception
+class ConfigFileIncludeFopException extends Sexception
 {
 
     /**
@@ -15,12 +15,12 @@ class ParamDonoexException extends Sexception
      *
      * @var string
      */
-    protected $hint = 'Neccessary param is missing.';
+    protected $hint = 'File with configurations failed on include.';
 
     /**
      * Keys for extra data array.
      *
      * @var array
      */
-    protected $keys = [ 'paramName', 'operationMethodName' ];
+    protected $keys = [ 'fileName' ];
 }

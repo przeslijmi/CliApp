@@ -2,28 +2,25 @@
 
 namespace Przeslijmi\CliApp\Exceptions;
 
-use Przeslijmi\Sexceptions\Exceptions\ClassFopException;
+use Przeslijmi\Sexceptions\Sexception;
 
 /**
- * Operation called by CLI does not exists in CliApp.
+ * CliApp operation does not exists.
  */
-class OperationDonoexException extends ClassFopException
+class OperationDonoexException extends Sexception
 {
 
     /**
-     * Constructor.
+     * Hint.
      *
-     * @param string $operationName Name of missing operation.
+     * @var string
      */
-    public function __construct(string $operationName)
-    {
+    protected $hint = 'CliApp operation does not exists. Isn\'t there any mismatch?';
 
-        // Lvd.
-        $hint = 'Check CLI command. Isn\'t there any mismatch? Try to call app with `help` operation.';
-
-        // Define.
-        $this->addInfo('context', 'CliAppOperationDonoex');
-        $this->addInfo('operationName', $operationName);
-        $this->addHint($hint);
-    }
+    /**
+     * Keys for extra data array.
+     *
+     * @var array
+     */
+    protected $keys = [ 'appName', 'operationMethodName' ];
 }

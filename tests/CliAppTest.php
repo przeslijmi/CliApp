@@ -3,13 +3,13 @@
 namespace Przeslijmi\CliApp;
 
 use PHPUnit\Framework\TestCase;
-use Przeslijmi\CliApp\Example\SimpleApp;
 use Przeslijmi\CliApp\Example\ConfigsApp;
-use Przeslijmi\CliApp\Example\HandlersApp;
 use Przeslijmi\CliApp\Example\CorruptedApp;
-use Przeslijmi\CliApp\Params;
+use Przeslijmi\CliApp\Example\HandlersApp;
+use Przeslijmi\CliApp\Example\SimpleApp;
+use Przeslijmi\CliApp\Exceptions\CliAppFopException;
 use Przeslijmi\CliApp\Exceptions\ParamDonoexException;
-use Przeslijmi\Sexceptions\Exceptions\ClassFopException;
+use Przeslijmi\CliApp\Params;
 
 /**
  * Methods for testing File class.
@@ -231,7 +231,7 @@ final class CliAppTest extends TestCase
         $app->getParams()->setParam('c', 'nonexstingFile.xxx');
 
         // Prepare.
-        $this->expectException(ClassFopException::class);
+        $this->expectException(CliAppFopException::class);
 
         // Start.
         $app->start();
@@ -250,7 +250,7 @@ final class CliAppTest extends TestCase
         $app->getParams()->setOperation('nonexstingOperation');
 
         // Prepare.
-        $this->expectException(ClassFopException::class);
+        $this->expectException(CliAppFopException::class);
 
         // Start.
         $app->start();
@@ -273,7 +273,7 @@ final class CliAppTest extends TestCase
         $app->getParams()->setParam('c', $dir . 'resources/corrupted.config.php');
 
         // Prepare.
-        $this->expectException(ClassFopException::class);
+        $this->expectException(CliAppFopException::class);
 
         // Start.
         $app->start();
@@ -292,7 +292,7 @@ final class CliAppTest extends TestCase
         $app->getParams()->setOperation('cook');
 
         // Prepare.
-        $this->expectException(ClassFopException::class);
+        $this->expectException(CliAppFopException::class);
 
         // Start.
         $app->start();

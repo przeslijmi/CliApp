@@ -5,9 +5,9 @@ namespace Przeslijmi\CliApp\Exceptions;
 use Przeslijmi\Sexceptions\Sexception;
 
 /**
- * Neccessary param is missing.
+ * File with configurations to use is not existing.
  */
-class ParamDonoexException extends Sexception
+class ConfigFileDonoexException extends Sexception
 {
 
     /**
@@ -15,12 +15,12 @@ class ParamDonoexException extends Sexception
      *
      * @var string
      */
-    protected $hint = 'Neccessary param is missing.';
+    protected $hint = 'File with configurations to use is not existing.';
 
     /**
      * Keys for extra data array.
      *
      * @var array
      */
-    protected $keys = [ 'paramName', 'operationMethodName' ];
+    protected $keys = [ 'fileName' ];
 }

@@ -2,13 +2,14 @@
 
 namespace Przeslijmi\CliApp;
 
-use Throwable;
+use Przeslijmi\CliApp\Exceptions\CallingCliAppOperationFopException;
+use Przeslijmi\CliApp\Exceptions\CliAppFopException;
 use Przeslijmi\CliApp\Exceptions\OperationDonoexException;
+use Przeslijmi\CliApp\Exceptions\ConfigFileDonoexException;
 use Przeslijmi\CliApp\Params;
-use Przeslijmi\Sexceptions\Exceptions\ClassFopException;
-use Przeslijmi\Sexceptions\Exceptions\FileDonoexException;
-use Przeslijmi\Sexceptions\Exceptions\MethodFopException;
+use Przeslijmi\Sexceptions\Exceptions\ConfigFileIncludeFopException;
 use Przeslijmi\Silogger\Log;
+use Throwable;
 
 /**
  * Parent for all CLI Applications taking care of parameters and communication.
@@ -61,9 +62,10 @@ abstract class CliApp
     /**
      * Start doing job. Runnes method of name equal to operation name.
      *
-     * @throws MethodFopException       When including configs failed or calling method failed.
-     * @throws OperationDonoexException When called method does not exists.
-     * @throws ClassFopException        When whole process failed.
+     * @throws ConfigsReadingFopException When including configs failed or calling method failed.
+     * @throws OperationDonoexException When operation called does not exists.
+     * @throws CallingCliAppOperationFopException When calling operation failed.
+     * @throws CliAppFopException Parent - when this method somehow failed.
      * @return void
      */
     public function start() : void
@@ -76,7 +78,7 @@ abstract class CliApp
             try {
                 $this->includeConfig();
             } catch (Throwable $thr) {
-                throw new MethodFopException('cliAppIncludingConfigs', $thr);
+                throw new ConfigsReadingFopException([], 0, $thr);
             }
 
             // Call before operation handler (if exists).
@@ -92,14 +94,14 @@ abstract class CliApp
 
             // Check.
             if (method_exists($this, $operation) === false) {
-                throw new OperationDonoexException($operation);
+                throw new OperationDonoexException([ get_class($this), $operation ]);
             }
 
             // Call.
             try {
                 $this->$operation();
             } catch (Throwable $thr) {
-                throw new MethodFopException('callingCliAppOperation', $thr);
+                throw new CallingCliAppOperationFopException([ get_class($this), $operation ], 0, $thr);
             }
 
             // Call after operation handler (if exists).
@@ -107,8 +109,7 @@ abstract class CliApp
                 $this->handleAfterOperation();
             }
         } catch (Throwable $thr) {
-            throw ( new ClassFopException('cliAppStopped', $thr) )
-                ->addInfo('realClass', get_class($this));
+            throw new CliAppFopException([ get_class($this) ], 0, $thr);
         }//end try
     }
 
@@ -186,8 +187,8 @@ abstract class CliApp
     /**
      * Includes configuration file if param `config` or `c` were given.
      *
-     * @throws FileDonoexException If file does not exists.
-     * @throws MethodFopException  If inclusion went wrong.
+     * @throws ConfigFileDonoexException Wher file does not exists.
+     * @throws ConfigFileIncludeFopException When file exists but failed to include it.
      * @return void
      */
     private function includeConfig() : void
@@ -208,15 +209,14 @@ abstract class CliApp
             $hint  = 'Config (c) param sent to application have to be an existing configuration file. ';
             $hint .= 'File is missing.';
 
-            throw ( new FileDonoexException('cliAppConfigurationFile', $configUri) )
-                ->addHint($hint);
+            throw new ConfigFileDonoexException([ $configUri ]);
         }
 
         // Try to include config file - throw otherwise.
         try {
             include $configUri;
         } catch (Throwable $thr) {
-            throw new MethodFopException('includingConfigFile', $thr);
+            throw new ConfigFileIncludeFopException([ $configUri ], 0, $thr);
         }
 
         // Log.

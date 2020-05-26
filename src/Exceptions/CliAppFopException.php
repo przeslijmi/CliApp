@@ -5,9 +5,9 @@ namespace Przeslijmi\CliApp\Exceptions;
 use Przeslijmi\Sexceptions\Sexception;
 
 /**
- * Neccessary param is missing.
+ * CliApp stopped.
  */
-class ParamDonoexException extends Sexception
+class CliAppFopException extends Sexception
 {
 
     /**
@@ -15,12 +15,12 @@ class ParamDonoexException extends Sexception
      *
      * @var string
      */
-    protected $hint = 'Neccessary param is missing.';
+    protected $hint = 'CliApp stopped.';
 
     /**
      * Keys for extra data array.
      *
      * @var array
      */
-    protected $keys = [ 'paramName', 'operationMethodName' ];
+    protected $keys = [ 'appName' ];
 }

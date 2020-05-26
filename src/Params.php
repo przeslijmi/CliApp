@@ -65,7 +65,7 @@ class Params
     {
 
         if (isset($this->params[$name]) === false && $throw === true) {
-            throw new ParamDonoexException($name);
+            throw new ParamDonoexException([ $name ]);
         } elseif (isset($this->params[$name]) === false && $throw === false) {
             return null;
         }
