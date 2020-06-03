@@ -2,7 +2,13 @@
 
 namespace Przeslijmi\CliApp;
 
+use Przeslijmi\CliApp\CliApp;
+use Przeslijmi\CliApp\Exceptions\ConfigIncompleteException;
 use Przeslijmi\CliApp\Exceptions\ParamDonoexException;
+use Przeslijmi\CliApp\Exceptions\ParamIsEmptyException;
+use Przeslijmi\CliApp\Exceptions\ParamWrotypeException;
+use stdClass;
+use Throwable;
 
 /**
  * Param mechanism for CLI Applications.
@@ -32,11 +38,21 @@ class Params
     private $aliases = [];
 
     /**
-     * Constructor - defines default param 'config' and alias 'c'.
+     * Parent APP that created this Params object.
+     *
+     * @var CliApp
      */
-    public function __construct()
+    private $parentApp;
+
+    /**
+     * Constructor - defines default param 'config' and alias 'c'.
+     *
+     * @param CliApp $parentApp Parent APP that created this Params object.
+     */
+    public function __construct(CliApp $parentApp)
     {
 
+        $this->parentApp = $parentApp;
         $this->setParam('config', '');
         $this->setAliases('config', 'c');
     }
@@ -108,15 +124,13 @@ class Params
     /**
      * Changes `argv` std php array into key/value array.
      *
-     * @param array $params Contents of `argv` array.
+     * @param array   $params           Contents of `argv` array.
+     * @param boolean $setOperationAlso Optional, true. If set to false operation will not be set.
      *
      * @return self
      */
-    public function set(array $params) : self
+    public function set(array $params, bool $setOperationAlso = true) : self
     {
-
-        // Reset.
-        $this->params = [];
 
         // Shortcut - do nothing.
         if (count($params) < 2) {
@@ -124,7 +138,7 @@ class Params
         }
 
         // Save operation if it is given.
-        if (substr($params[1], 0, 1) !== '-') {
+        if (substr($params[1], 0, 1) !== '-' && $setOperationAlso === true) {
             $this->setOperation($params[1]);
         }
 
@@ -213,5 +227,69 @@ class Params
         }
 
         return $this;
+    }
+
+    /**
+     * Called to check if params are properly set.
+     *
+     * ## Usage example
+     * ```
+     * $his->validateParams([
+     *     [ 'param0', 'string', false ],      // has to be string but can be empty
+     *     [ 'param1', 'string|array', true ], // has to be array or string and non-empty
+     *     [ 'param1', 'stdCalss', true ],     // has to be object of stdClass and non-empty
+     * ]);
+     * ```
+     *
+     * @param array $definitions Definitions of params to be used for validations (see example above).
+     *
+     * @throws ParamDonoexException When param does not exist.
+     * @throws ParamWrotypeException When param exists but is of wrong type.
+     * @throws ParamIsEmptyException When param is empty while it shouldn't be.
+     * @throws ConfigIncompleteException When any error occured.
+     * @return boolean
+     */
+    public function validateParams(array $definitions) : bool
+    {
+
+        // Lvd.
+        $parent = get_class($this->parentApp);
+
+        // Try.
+        try {
+
+            // Check all configs.
+            foreach ($definitions as $def) {
+
+                // If param is not defined.
+                if ($this->isParamSet($def[0]) === false) {
+                    throw new ParamDonoexException([ $def[0], $parent ]);
+                }
+
+                // Lvd.
+                $value = $this->getParam($def[0]);
+
+                // Get type or class name of this variable.
+                if (is_object($value) === true) {
+                    $typeOrClass = get_class($value);
+                } else {
+                    $typeOrClass = gettype($value);
+                }
+
+                // If constant has wrong type.
+                if (in_array($typeOrClass, explode('|', $def[1])) === false) {
+                    throw new ParamWrotypeException([ $def[0], $def[1], $typeOrClass, $parent ]);
+                }
+
+                // If constant is obligatory not-empty, and in fact is empty.
+                if ($def[2] === true && empty($value) === true) {
+                    throw new ParamIsEmptyException([ $def[0], $parent ]);
+                }
+            }//end foreach
+        } catch (Throwable $thr) {
+            throw new ConfigIncompleteException([ $parent ], 0, $thr);
+        }//end try
+
+        return true;
     }
 }

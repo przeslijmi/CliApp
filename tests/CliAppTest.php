@@ -8,8 +8,12 @@ use Przeslijmi\CliApp\Example\CorruptedApp;
 use Przeslijmi\CliApp\Example\HandlersApp;
 use Przeslijmi\CliApp\Example\SimpleApp;
 use Przeslijmi\CliApp\Exceptions\CliAppFopException;
+use Przeslijmi\CliApp\Exceptions\ConfigIncompleteException;
 use Przeslijmi\CliApp\Exceptions\ParamDonoexException;
+use Przeslijmi\CliApp\Exceptions\ParamIsEmptyException;
+use Przeslijmi\CliApp\Exceptions\ParamWrotypeException;
 use Przeslijmi\CliApp\Params;
+use stdClass;
 
 /**
  * Methods for testing File class.
@@ -73,9 +77,9 @@ final class CliAppTest extends TestCase
         // Test.
         $this->assertTrue(is_a($app->getParams(), Params::class));
         $this->assertTrue(is_array($app->getParams()->get()));
-        $this->assertEquals(3, count($app->getParams()->get()));
+        $this->assertEquals(4, count($app->getParams()->get()));
         $this->assertEquals(
-            [ '', 'param1', 'param2' ],
+            [ 'config', '', 'param1', 'param2' ],
             array_keys($app->getParams()->get())
         );
         $this->assertEquals('cook', $app->getParams()->getOperation());
@@ -106,8 +110,12 @@ final class CliAppTest extends TestCase
         // Test.
         $this->assertTrue(is_a($app->getParams(), Params::class));
         $this->assertTrue(is_array($app->getParams()->get()));
-        $this->assertEquals(0, count($app->getParams()->get()));
-        $this->assertTrue(empty(array_keys($app->getParams()->get())));
+        $this->assertEquals(1, count($app->getParams()->get()));
+        $this->assertEquals(
+            [ 'config' ],
+            array_keys($app->getParams()->get())
+        );
+        $this->assertFalse(empty(array_keys($app->getParams()->get())));
         $this->assertEquals('cook', $app->getParams()->getOperation());
         $this->assertEquals(null, $app->getParams()->getParam('missing', false));
     }
@@ -341,5 +349,61 @@ final class CliAppTest extends TestCase
         $app->deleteLog();
         $app->setLogName('test2');
         $app->logCounter('debug', 1, 2, 'served');
+    }
+
+    /**
+     * Test if validating params works.
+     *
+     * @return void
+     */
+    public function testIfValidatingParams() : void
+    {
+
+        // Lvd.
+        $paramsDef = [
+            [ 'param1', 'string', true ],
+            [ 'param2', 'array', true ],
+            [ 'param3', 'string', false ],
+            [ 'param4', 'stdClass', true ],
+            [ 'param5', 'string|array', true ],
+        ];
+
+        // Create application.
+        $app = new SimpleApp();
+        $app->getParams()->setParam('param1', 'test');
+        $app->getParams()->setParam('param2', [ 'test' ]);
+        $app->getParams()->setParam('param3', '');
+        $app->getParams()->setParam('param4', new stdClass());
+        $app->getParams()->setParam('param5', [ 'test' ]);
+
+        // Test.
+        $this->assertTrue($app->getParams()->validateParams($paramsDef));
+
+        // Change param.
+        $app->getParams()->setParam('param1', '');
+
+        // Test param is empty.
+        try {
+            $app->getParams()->validateParams($paramsDef);
+        } catch (ConfigIncompleteException $exc) {
+            $this->assertTrue($exc->hasInCauses(ParamIsEmptyException::class));
+        }
+
+        // Change param.
+        $app->getParams()->setParam('param1', [ 'test' ]);
+
+        // Test param is wrotype.
+        try {
+            $app->getParams()->validateParams($paramsDef);
+        } catch (ConfigIncompleteException $exc) {
+            $this->assertTrue($exc->hasInCauses(ParamWrotypeException::class));
+        }
+
+        // Test param donoex.
+        try {
+            $app->getParams()->validateParams([[ 'param999', 'string', true ]]);
+        } catch (ConfigIncompleteException $exc) {
+            $this->assertTrue($exc->hasInCauses(ParamDonoexException::class));
+        }
     }
 }

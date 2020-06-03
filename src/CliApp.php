@@ -44,7 +44,7 @@ abstract class CliApp
     public function __construct()
     {
 
-        $this->params = new Params();
+        $this->params = new Params($this);
         $this->log('info', 'started ' . get_class($this));
     }
 
