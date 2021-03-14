@@ -39,13 +39,46 @@ abstract class CliApp
     private $logName = 'default';
 
     /**
+     * Process object.
+     *
+     * @var Process
+     */
+    private $process;
+    private $dontKillProcess = false;
+
+    /**
      * Constructor.
      */
     public function __construct()
     {
 
         $this->params = new Params($this);
-        $this->log('info', 'started ' . get_class($this));
+        $this->localeLog('notice', 'Przeslijmi\CliApp', 'Start', [ get_class($this) ]);
+    }
+
+    /**
+     * Destructor - ends working process notification.
+     */
+    public function __destruct()
+    {
+
+        // Finish process (if exists).
+        if ($this->process !== null && $this->dontKillProcess === false) {
+            $this->process->finish();
+        }
+    }
+
+    public function dontKillProcess() : void
+    {
+
+        $this->dontKillProcess = true;
+    }
+
+    public function addProcess(string $processUniqueId) : void
+    {
+
+        $this->process = new Process($processUniqueId);
+        $this->process->start();
     }
 
     /**
@@ -164,6 +197,26 @@ abstract class CliApp
     }
 
     /**
+     * Logs message.
+     *
+     * @param string $level   Name of level (see Silogger doc).
+     * @param mixed  $message Message contents.
+     * @param array  $context Extra information to save to log.
+     *
+     * @return void
+     */
+    public function localeLog(string $level, string $class, string $id, array $fields = [], array $context = []) : void
+    {
+
+        // Get log if not exists.
+        if ($this->log === null) {
+            $this->log = Log::get();
+        }
+
+        $this->log->localeLog($level, $class, $id, $fields, $context);
+    }
+
+    /**
      * Logs counter.
      *
      * @param string  $level   Name of level (see Silogger doc).
@@ -183,6 +236,56 @@ abstract class CliApp
 
         $this->log->logCounter($level, $current, $target, $word);
     }
+
+    /**
+     * Call `info` log with list of all defined params.
+     *
+     * @return void
+     */
+    public function logParams() : void
+    {
+
+        // Lvd.
+        $infos   = [];
+        $longest = 1;
+
+        // Find longest params.
+        foreach (array_keys($this->getParams()->getParams()) as $paramName) {
+            if (strlen($paramName) > $longest) {
+                $longest = strlen($paramName);
+            }
+        }
+
+        // Prepare infos.
+        foreach ($this->getParams()->getParams() as $paramName => $paramValue) {
+
+            // Ignore empty params.
+            if (empty($paramName) === true) {
+                continue;
+            }
+
+            // Reformat value.
+            if (is_bool($paramValue) === true) {
+                $showValue = '(bool) ' . var_export($paramValue, true);
+            } elseif (is_string($paramValue) === true && strlen($paramValue) === 0) {
+                $showValue = '(empty)';
+            } elseif (is_null($paramValue) === true) {
+                $showValue = '(null)';
+            } elseif (is_array($paramValue) === true) {
+                // $showValue = '(array) ' . implode(', ', $paramValue);
+                $showValue = '(array) temporarily unavailable';
+            } else {
+                $showValue = $paramValue;
+            }
+
+            // Add infos.
+            $infos[] = '   ' . str_pad($paramName, $longest, ' ', STR_PAD_RIGHT) . ' => ' . $showValue . ';';
+        }
+
+        // Log.
+        $this->log('info', 'Working with belows param settings:' . PHP_EOL . implode(PHP_EOL, $infos));
+    }
+
 
     /**
      * Includes configuration file if param `config` or `c` were given.

@@ -45,7 +45,7 @@ class Params
     private $parentApp;
 
     /**
-     * Constructor - defines default param 'config' and alias 'c'.
+     * Constructor - defines default params 'upid' and 'config' (with 'c' alias)
      *
      * @param CliApp $parentApp Parent APP that created this Params object.
      */
@@ -55,6 +55,7 @@ class Params
         $this->parentApp = $parentApp;
         $this->setParam('config', '');
         $this->setAliases('config', 'c');
+        $this->setParam('upid', '');
     }
 
     /**
@@ -87,6 +88,17 @@ class Params
         }
 
         return $this->params[$name];
+    }
+
+    /**
+     * Retun list off all params.
+     *
+     * @return array
+     */
+    public function getParams() : array
+    {
+
+        return $this->params;
     }
 
     /**
@@ -187,6 +199,12 @@ class Params
         if (isset($this->aliases[$name]) === true) {
             $originalName                = $this->aliases[$name];
             $this->params[$originalName] = $this->params[$name];
+        }
+
+        // If this is upid (unique process id) param - inform CliApp about it.
+        if ($name === 'upid' && empty($value) === false) {
+            $_SERVER['PRZESLIJMI_CLIAPP_UPID'] = $value;
+            $this->parentApp->addProcess($value);
         }
 
         return $this;
