@@ -1,7 +1,7 @@
 {
   "name": "przeslijmi/cliapp",
   "description": "PHP library to manage CLI applications (echoing to CLI and reading params).",
-  "version": "v1.3.1",
+  "version": "v1.3.2",
   "type": "library",
   "license": "MIT",
   "authors": [
