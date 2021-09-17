@@ -286,7 +286,6 @@ abstract class CliApp
         $this->log('info', 'Working with belows param settings:' . PHP_EOL . implode(PHP_EOL, $infos));
     }
 
-
     /**
      * Includes configuration file if param `config` or `c` were given.
      *
